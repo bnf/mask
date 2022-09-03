@@ -52,7 +52,6 @@ define([
       splashscreen,
       buttonBar,
       fieldGroup,
-      elementColorPicker,
     },
     data: function () {
       return {
