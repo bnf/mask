@@ -47,7 +47,6 @@ define([
       draggable,
       nestedDraggable,
       formField,
-      elementKey,
       fieldKey,
       splashscreen,
       fieldGroup,
