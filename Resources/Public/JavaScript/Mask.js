@@ -51,7 +51,6 @@ define([
       fieldKey,
       splashscreen,
       buttonBar,
-      fontIconPicker,
       fieldGroup,
       elementColorPicker,
     },

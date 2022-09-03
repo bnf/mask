@@ -61,11 +61,11 @@
 </div>
 
 <div class="row mb-1">
-    <font-icon-picker :element="element" :label="language.icon" :fa-icons="faIcons" property="icon" ref="iconPicker"></font-icon-picker>
+    <mask-font-icon-picker :element.prop="element" :label="language.icon" :fa-icons.prop="faIcons" property="icon" ref="iconPicker"></mask-font-icon-picker>
     <element-color-picker :element="element" :label="language.color" property="color"></element-color-picker>
 </div>
 <div v-if="global.typo3Version > 10" class="row mb-1">
-    <font-icon-picker :element="element" :label="language.iconOverlay" :fa-icons="faIcons" property="iconOverlay" ref="iconOverlayPicker"></font-icon-picker>
+    <mask-font-icon-picker :element.prop="element" :label="language.iconOverlay" :fa-icons.prop="faIcons" property="iconOverlay" ref="iconOverlayPicker"></mask-font-icon-picker>
     <element-color-picker :element="element" :label="language.colorOverlay" property="colorOverlay"></element-color-picker>
 </div>
 <div class="checkbox checkbox-type-toggle form-check form-switch">
