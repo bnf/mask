@@ -1,4 +1,4 @@
-<div v-show="loaded" v-if="mode == 'list'" class="mask-list" style="display: none;">
+    <div v-show="loaded" v-if="mode == 'list'" class="mask-list" style="display: none;">
     <f:render partial="List/Header" arguments="{_all}"/>
     <div class="mask-elements">
         <div class="mask-elements__column mask-elements__column--elements">
@@ -38,17 +38,16 @@
                         </td>
                         <td class="mask-elements__count"><span :title="language.usage">{{ item.count }}</span></td>
                         <td class="mask-elements__buttons">
-                            <button-bar
+                            <mask-button-bar
                                     v-if="loaded"
                                     @toggle="loadElements"
-                                    :element="item"
-                                    :icons="icons"
-                                    :show-messages="showMessages"
-                                    :open-edit="openEdit"
-                                    :open-delete-dialog="openDeleteDialog"
-                                    :language="language"
+                                    :element.prop="item"
+                                    :show-messages.prop="showMessages"
+                                    :open-edit.prop="openEdit"
+                                    :open-delete-dialog.prop="openDeleteDialog"
+                                    :language.prop="language"
                                     table="tt_content"
-                            ></button-bar>
+                            ></mask-button-bar>
                         </td>
                     </tr>
                 </table>

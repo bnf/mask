@@ -50,7 +50,6 @@ define([
       elementKey,
       fieldKey,
       splashscreen,
-      buttonBar,
       fieldGroup,
     },
     data: function () {

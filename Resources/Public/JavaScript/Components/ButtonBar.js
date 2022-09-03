@@ -1,116 +1,130 @@
 define([
-      'TYPO3/CMS/Mask/Contrib/vue',
-      'TYPO3/CMS/Backend/Icons',
+      'lit',
+      'lit/directives/class-map',
       'TYPO3/CMS/Core/Ajax/AjaxRequest',
       'TYPO3/CMS/Backend/Tooltip',
       'TYPO3/CMS/Backend/Modal',
-      'jquery'
+      'jquery',
+      'TYPO3/CMS/Backend/Element/IconElement'
     ],
-    function (Vue, Icons, AjaxRequest, Tooltip, Modal, $) {
-      return Vue.component(
-          'button-bar',
-          {
-            props: {
-              element: Object,
-              showMessages: Function,
-              icons: Object,
-              openEdit: Function,
-              openDeleteDialog: Function,
-              language: Object,
-              table: String
-            },
-            data() {
-              return {
-                toggleIcons: {
-                  actionsEditHide: '',
-                  actionsEditUnhide: '',
-                  spinnerCircleDark: '',
-                },
-                htmlIcon: '',
-                loading: false
-              };
-            },
-            methods: {
-              toggleVisibility() {
-                this.loading = true;
-                (new AjaxRequest(TYPO3.settings.ajaxUrls.mask_toggle_visibility)).post({element: this.element})
-                    .then(
-                        async response => {
-                          const res = await response.resolve();
-                          this.loading = false;
-                          this.showMessages(res);
-                          this.$emit('toggle');
-                        }
-                    )
-              },
-              hideTooltip(key) {
-                Tooltip.hide($(this.$refs[this.element.key + key]));
-              },
-              openFluidCodeModal(element) {
-                const url = new URL(TYPO3.settings.ajaxUrls.mask_html, window.location.origin);
-                url.searchParams.append('key', element.key);
-                url.searchParams.append('table', this.table);
+    function ({html, LitElement, nothing}, {classMap}, AjaxRequest, Tooltip, Modal, $) {
 
-                Modal.advanced({
-                  type: Modal.types.ajax,
-                  size: Modal.sizes.large,
-                  title: 'Example Fluid Code for element: ' + element.label,
-                  content: url.href
-                });
-              },
-            },
-            computed: {
-              toggleIcon() {
-                if (this.loading) {
-                  return this.toggleIcons.spinnerCircleDark;
-                }
-                return this.element.hidden ? this.toggleIcons.actionsEditUnhide : this.toggleIcons.actionsEditHide;
-              }
-            },
-            mounted() {
-              Icons.getIcon('actions-edit-hide', Icons.sizes.small).then((icon) => {
-                this.toggleIcons.actionsEditHide = icon;
-              });
-              Icons.getIcon('actions-edit-unhide', Icons.sizes.small).then((icon) => {
-                this.toggleIcons.actionsEditUnhide = icon;
-              });
-              Icons.getIcon('spinner-circle-dark', Icons.sizes.small).then((icon) => {
-                this.toggleIcons.spinnerCircleDark = icon;
-              });
-              Icons.getIcon('sysnote-type-2', Icons.sizes.small).then((icon) => {
-                this.htmlIcon = icon;
-              });
-              Tooltip.initialize(`.${this.table}-${this.element.key}-bar [data-bs-toggle="tooltip"]`, {
-                  delay: {
-                      'show': 500,
-                      'hide': 100
-                  },
-                  trigger: 'hover',
-                  container: 'body'
-              });
-            },
-            template: `
-            <div :class="table + '-' + element.key + '-bar'" class="mask-elements__btn-group">
+      class ButtonBarElement extends LitElement {
+
+        static properties = {
+          element: { type: Object, attribute: false },
+          showMessage: { type: Function, attribute: false },
+          openEdit: { type: Function, attribute: false },
+          openDeleteDialog: { type: Function, attribute: false },
+          language: { type: Object, attribute: false },
+          table: { type: String },
+          loading: { state: true },
+        };
+
+        constructor() {
+          super();
+          this.loading = false;
+          this.initialized = false;
+        }
+
+        createRenderRoot() {
+          return this;
+        }
+
+        render() {
+          if (!this.element) {
+            return nothing;
+          }
+
+          const {element, table, language, loading, toggleIcon} = this;
+          const {tooltip} = language;
+
+          return html`
+            <div class="${table + '-' + element.key + '-bar'} mask-elements__btn-group">
               <div class="btn-group">
-                <a :ref="element.key + 'html'" class="btn btn-default" @click="hideTooltip('html'); openFluidCodeModal(element);" data-bs-toggle="tooltip" :title="language.tooltip.html">
-                    <span v-html="htmlIcon"></span>
+
+                <a class="btn btn-default" @click=${(e) => {this.hideTooltip(e); this.openFluidCodeModal(element)}} data-bs-toggle="tooltip" title=${tooltip.html}>
+                  <typo3-backend-icon identifier="sysnote-type-2" size="small"></typo3-backend-icon>
                 </a>
-                <a :ref="element.key + 'edit'" class="btn btn-default" @click="hideTooltip('edit'); openEdit(table, element);" data-bs-toggle="tooltip" :title="language.tooltip.editElement">
-                    <span v-html="icons.edit"></span>
+
+                <a class="btn btn-default" @click=${(e) => {this.hideTooltip(e); this.openEdit(table, element)}} data-bs-toggle="tooltip" title=${tooltip.editElement}>
+                  <typo3-backend-icon identifier="actions-open" size="small"></typo3-backend-icon>
                 </a>
-                <a v-if="table == 'tt_content'" v-show="!element.hidden" :ref="element.key + 'hide'" class="btn btn-default" :class="{'disable-pointer': loading}" @click="hideTooltip('hide'); toggleVisibility('hide');" data-bs-toggle="tooltip" :title="language.tooltip.disableElement">
-                   <span v-html="toggleIcon"></span>
-                </a>
-                <a v-if="table == 'tt_content'" v-show="element.hidden" :ref="element.key + 'enable'" class="btn btn-default" :class="{'disable-pointer': loading}" @click="hideTooltip('enable'); toggleVisibility('enable');" data-bs-toggle="tooltip" :title="language.tooltip.enableElement">
-                   <span v-html="toggleIcon"></span>
-                </a>
-                <a v-if="table == 'tt_content'" :ref="element.key + 'delete'" class="btn btn-default" @click="hideTooltip('delete'); openDeleteDialog(element)" data-bs-toggle="tooltip" :title="language.tooltip.deleteElement">
-                    <span v-html="icons.delete"></span>
-                </a>
+
+                ${table === 'tt_content' ? html`
+                  <a
+                     class="btn btn-default ${classMap({'disable-pointer': loading})}"
+                     @click=${(e) => {const action = this.element.hidden ? 'enable' : 'hide'; this.hideTooltip(e); this.toggleVisibility(action)}}
+                     data-bs-toggle="tooltip"
+                     title=${element.hidden ? tooltip.enableElement : tooltip.disableElement}
+                  >
+                    <typo3-backend-icon identifier=${toggleIcon} size="small"></typo3-backend-icon>
+                  </a>
+
+                  <a class="btn btn-default" @click=${(e) => {this.hideTooltip(e); this.openDeleteDialog(element)}} data-bs-toggle="tooltip" title=${tooltip.deleteElement}>
+                    <typo3-backend-icon identifier="actions-edit-delete" size="small"></typo3-backend-icon>
+                  </a>
+                ` : nothing}
+
               </div>
             </div>
-        `
+          `
+        }
+
+        firstUpdated() {
+          if (!this.element) {
+            return nothing;
           }
-      )
+          Tooltip.initialize(`.${this.table}-${this.element.key}-bar [data-bs-toggle="tooltip"]`, {
+            delay: {
+              'show': 500,
+              'hide': 100
+            },
+            trigger: 'hover',
+            container: 'body'
+          });
+        }
+
+        get toggleIcon() {
+          if (this.loading) {
+            return 'spinner-circle-dark';
+          }
+          return this.element?.hidden ? 'actions-edit-unhide' : 'actions-edit-hide';
+        }
+
+        toggleVisibility() {
+          this.loading = true;
+          (new AjaxRequest(TYPO3.settings.ajaxUrls.mask_toggle_visibility)).post({element: this.element})
+              .then(
+                  async response => {
+                    const res = await response.resolve();
+                    this.loading = false;
+                    this.showMessages(res);
+                    this.dispatchEvent(new CustomEvent("toggle"));
+                  }
+              )
+        }
+
+        hideTooltip(event) {
+          Tooltip.hide(event.currentTarget);
+        }
+
+        openFluidCodeModal(element) {
+          const url = new URL(TYPO3.settings.ajaxUrls.mask_html, window.location.origin);
+          url.searchParams.append('key', element.key);
+          url.searchParams.append('table', this.table);
+
+          Modal.advanced({
+            type: Modal.types.ajax,
+            size: Modal.sizes.large,
+            title: 'Example Fluid Code for element: ' + element.label,
+            content: url.href
+          });
+        }
+      }
+
+      window.customElements.define('mask-button-bar', ButtonBarElement);
+
+      return {ButtonBarElement};
     }
 );
