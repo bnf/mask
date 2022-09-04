@@ -23,9 +23,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
 /**
@@ -70,15 +68,6 @@ class MaskController
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->initializeView('Wizard/Main');
-        $this->pageRenderer->addRequireJsConfiguration(
-            [
-                'paths' => [
-                    'sortablejs' => PathUtility::getAbsoluteWebPath(
-                        ExtensionManagementUtility::extPath('mask', 'Resources/Public/JavaScript/Contrib/sortable')
-                    ),
-                ],
-            ]
-        );
         $this->pageRenderer->loadRequireJsModule('TYPO3/CMS/Mask/Mask');
         $this->pageRenderer->addCssFile('EXT:mask/Resources/Public/Styles/mask.css');
         $this->moduleTemplate->setContent($this->view->render());
