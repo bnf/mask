@@ -1,12 +1,11 @@
-define([
-      'TYPO3/CMS/Mask/Contrib/vue',
-      'TYPO3/CMS/Backend/Icons',
-      'TYPO3/CMS/Core/Ajax/AjaxRequest',
-      'TYPO3/CMS/Backend/Tooltip',
-      'TYPO3/CMS/Backend/Modal',
-      'jquery'
-    ],
-    function (Vue, Icons, AjaxRequest, Tooltip, Modal, $) {
+import Vuew from 'vue';
+import Icon from '@typo3/backend/icons.js';
+import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
+import Tooltip from '@typo3/backend/tooltip.js';
+import Modal from '@typo3/backend/modal.js';
+import $ from 'jquery';
+
+export default (() => {
       return Vue.component(
           'button-bar',
           {
@@ -113,4 +112,4 @@ define([
           }
       )
     }
-);
+)();

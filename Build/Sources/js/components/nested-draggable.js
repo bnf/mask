@@ -1,3 +1,6 @@
+export default function foo() {
+}
+
 define([
     'TYPO3/CMS/Mask/Contrib/vue',
     'TYPO3/CMS/Mask/Contrib/vuedraggable',
